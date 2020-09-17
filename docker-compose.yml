@@ -1,13 +1,13 @@
 version: '3'
 services:
-  vuesplash_web:
+  web:
     build: .
     volumes:
       - ./web:/var/www/html/vuesplash
     ports:
       - 8081:8081
       - 3000:3000
-  vuesplash_db:
+  db:
     image: mysql:5.7
     restart: always
     environment:
