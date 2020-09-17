@@ -1,0 +1,23 @@
+version: '3'
+services:
+  vuesplash_web:
+    build: .
+    volumes:
+      - ./web:/var/www/html/vuesplash
+    ports:
+      - 8081:8081
+      - 3000:3000
+  vuesplash_db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: vuesplash
+      MYSQL_USER: skanatani
+      MYSQL_PASSWORD: Shohei@1113
+      TZ: 'Asia/Tokyo'
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./database:/var/lib/mysql
+    ports:
+    - 6603:3306
