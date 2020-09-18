@@ -58,4 +58,12 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60);
         });
     }
+
+    protected function mapApiRoutes()
+    {
+        Route::prefix('api')
+            ->middleware('web')
+            ->namespace($this->namespace)
+            ->group(bash_path('routes/api.php'));
+    }
 }
