@@ -2,9 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Photo;
+use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -35,7 +38,7 @@ class PhotoSubmitApiTest extends TestCase
 
         $photo = Photo::first();
 
-        $this->assertRegExp('/^0-9a-zA-Z-_]{12}$/', $photo->id);
+        $this->assertRegExp('/^[0-9a-zA-Z-_]{12}$/', $photo->id);
 
         Storage::cloud()->assertExists($photo->filename);
     }
