@@ -6,6 +6,7 @@ use App\Http\Requests\StorePhoto;
 use App\Photo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class PhotoController extends Controller
@@ -32,7 +33,6 @@ class PhotoController extends Controller
             ->putFileAs('', $request->photo, $photo->filename, 'public');
 
         DB::beginTransaction();
-
         try {
             Auth::user()->photos()->save($photo);
             DB::commit();
@@ -41,6 +41,8 @@ class PhotoController extends Controller
             Storage::cloud()->delete($photo->filename);
             throw $exception;
         }
+
+        Log::debug($photo);
 
         return response($photo, 201);
     }

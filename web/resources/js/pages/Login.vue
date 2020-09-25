@@ -112,6 +112,9 @@ export default {
         clearError () {
             this.$store.commit('auth/setLoginErrorMessages', null)
             this.$store.commit('auth/setRegisterErrorMessages', null)
+        },
+        writeTempalte: function () {
+            this.msg = "初めまして（氏名）です。本日はお忙しい中お会いしていただき誠にありがとうございます。是非またお会いしましょう！"
         }
     },
     created () {

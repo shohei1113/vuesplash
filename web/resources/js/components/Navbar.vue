@@ -23,7 +23,7 @@
     </nav>
 </template>
 <script>
-import PhotoForm from "./PhotoForm.vue";
+import PhotoForm from './PhotoForm.vue';
 
 export default {
     components: {
