@@ -11,17 +11,32 @@ use Illuminate\Support\Facades\Storage;
 
 class PhotoController extends Controller
 {
+    /**
+     * PhotoController constructor.
+     */
     public function __construct()
     {
-        $this->middleware('auth')->except(['index', 'download']);
+        $this->middleware('auth')->except(['index', 'show', 'download']);
     }
 
+    /**
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
     public function index()
     {
         $photos = Photo::with(['owner'])
             ->orderBy(Photo::CREATED_AT, 'desc')->paginate();
-
         return $photos;
+    }
+
+    /**
+     * @param string $id
+     * @return Photo
+     */
+    public function show(string $id)
+    {
+        $photo = Photo::where('id', $id)->with(['owner'])->first();
+        return $photo ?? abort(404);
     }
 
     /**
@@ -32,9 +47,7 @@ class PhotoController extends Controller
     public function create(StorePhoto $request)
     {
         $extension = $request->photo->extension();
-
         $photo = new Photo();
-
         $photo->filename = $photo->id . '.' . $extension;
 
         Storage::cloud()
@@ -55,6 +68,10 @@ class PhotoController extends Controller
         return response($photo, 201);
     }
 
+    /**
+     * @param Photo $photo
+     * @return \Illuminate\Http\Response
+     */
     public function download(Photo $photo)
     {
         if (! Storage::cloud()->exists($photo->filename)) {

@@ -12,6 +12,8 @@ class Photo extends Model
 
     public $incrementing = false;
 
+    protected $perPage = 6;
+
     const ID_LENGTH = 12;
 
     protected $appends = [
