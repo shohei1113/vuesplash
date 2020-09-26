@@ -27,7 +27,7 @@ class PhotoSubmitApiTest extends TestCase
      */
     public function should_ファイルをアップロードできる()
     {
-        Storage::fake('s3');
+        $hoge = Storage::fake('s3');
 
         $response = $this->actingAs($this->user)
             ->json('POST', route('photo.create'), [
@@ -39,6 +39,8 @@ class PhotoSubmitApiTest extends TestCase
         $photo = Photo::first();
 
         $this->assertRegExp('/^[0-9a-zA-Z-_]{12}$/', $photo->id);
+
+        dd(Storage::files('/var/www/html/vuesplash/storage/framework/testing/disks/s3/'));
 
         Storage::cloud()->assertExists($photo->filename);
     }

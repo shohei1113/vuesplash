@@ -26,6 +26,7 @@ class RegisterApiTest extends TestCase
         $response = $this->json('POST', route('register'), $data);
 
         $user = User::first();
+
         $this->assertEquals($data['name'], $user->name);
 
         $response
