@@ -13,7 +13,7 @@ class PhotoController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth')->except(['index']);
+        $this->middleware('auth')->except(['index', 'download']);
     }
 
     public function index()
@@ -53,5 +53,20 @@ class PhotoController extends Controller
         Log::debug($photo);
 
         return response($photo, 201);
+    }
+
+    public function download(Photo $photo)
+    {
+        if (! Storage::cloud()->exists($photo->filename)) {
+            abort(404);
+        }
+
+        $disposition = 'attachment; filename="' . $photo->filename . '"';
+        $headers = [
+            'Content-Type' => 'application/octet-stream',
+            'Content-Disposition' => $disposition,
+        ];
+
+        return response(Storage::cloud()->get($photo->filename), 200, $headers);
     }
 }

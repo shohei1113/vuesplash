@@ -9,6 +9,8 @@ use Tests\TestCase;
 
 class PhotoListApiTest extends TestCase
 {
+    use RefreshDatabase;
+
     /**
      * @test
      */
