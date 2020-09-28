@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Comment;
+use App\Http\Requests\StoreComment;
 use App\Http\Requests\StorePhoto;
 use App\Photo;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +26,7 @@ class PhotoController extends Controller
      */
     public function index()
     {
-        $photos = Photo::with(['owner'])
+        $photos = Photo::with(['owner', 'likes'])
             ->orderBy(Photo::CREATED_AT, 'desc')->paginate();
         return $photos;
     }
@@ -35,7 +37,8 @@ class PhotoController extends Controller
      */
     public function show(string $id)
     {
-        $photo = Photo::where('id', $id)->with(['owner'])->first();
+        $photo = Photo::where('id', $id)
+            ->with(['owner', 'comments.author', 'likes'])->first();
         return $photo ?? abort(404);
     }
 
@@ -50,8 +53,7 @@ class PhotoController extends Controller
         $photo = new Photo();
         $photo->filename = $photo->id . '.' . $extension;
 
-        Storage::cloud()
-            ->putFileAs('', $request->photo, $photo->filename, 'public');
+        Storage::cloud()->putFileAs('', $request->photo, $photo->filename, 'public');
 
         DB::beginTransaction();
         try {
@@ -85,5 +87,53 @@ class PhotoController extends Controller
         ];
 
         return response(Storage::cloud()->get($photo->filename), 200, $headers);
+    }
+
+    /**
+     * @param Photo $photo
+     * @param StoreComment $request
+     * @return \Illuminate\Http\Response
+     */
+    public function addComment(Photo $photo, StoreComment $request)
+    {
+        $comment = new Comment();
+        $comment->content = $request->get('content');
+        $comment->user_id = Auth::user()->id;
+        $photo->comments()->save($comment);
+
+        $new_comment = Comment::where('id', $comment->id)->with('author')->first();
+
+        return response($new_comment, 201);
+    }
+
+    /**
+     * @param string $id
+     * @return string[]
+     */
+    public function like(string $id)
+    {
+        $photo = Photo::where('id', $id)->with('likes')->first();
+
+        if (! $photo) {
+            abort(404);
+        }
+
+        $photo->likes()->detach(Auth::user()->id);
+        $photo->likes()->attach(Auth::user()->id);
+
+        return ["photo_id" => $id];
+    }
+
+    public function unlike(string $id)
+    {
+        $photo = Photo::where('id', $id)->with('likes')->first();
+
+        if (! $photo) {
+            abort(404);
+        }
+
+        $photo->likes()->detach(Auth::user()->id);
+
+        return ['photo_id' => $id];
     }
 }

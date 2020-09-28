@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class Photo extends Model
@@ -17,11 +18,12 @@ class Photo extends Model
     const ID_LENGTH = 12;
 
     protected $appends = [
-        'url',
+        'url', 'likes_count', 'liked_by_user',
     ];
 
     protected array $visible = [
-        'id', 'owner', 'url'
+        'id', 'owner', 'url', 'comments',
+        'likes_count', 'liked_by_user',
     ];
 
     public function __construct(array $attributes = [])
@@ -41,11 +43,49 @@ class Photo extends Model
         return $this->belongsTo('App\User', 'user_id', 'id', 'users');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function comments()
+    {
+        return $this->hasMany('App\Comment')->orderBy('id', 'desc');
+    }
+
+    public function likes()
+    {
+        return $this->belongsToMany('App\User', 'likes')->withTimestamps();
+    }
+
+    /**
+     * @return mixed
+     */
     public function getUrlAttribute()
     {
         return Storage::cloud()->url($this->attributes['filename']);
     }
 
+    public function getLikedByUserAttribute()
+    {
+        if (Auth::guest()) {
+            return false;
+        }
+
+        return $this->likes->contains(function($user) {
+            return $user->id === Auth::user()->id;
+         });
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLikesCountAttribute()
+    {
+        return $this->likes->count();
+    }
+
+    /**
+     * @throws \Exception
+     */
     private function setId()
     {
         $this->attributes['id'] = $this->getRandomId();
