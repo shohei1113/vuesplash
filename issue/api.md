@@ -1,5 +1,8 @@
 # API設計
 
+## 参考URL
+https://qiita.com/mserizawa/items/b833e407d89abd21ee72
+
 ## REST APIとは
 
 - HTTPの技術を最大限活用する、シンプルな設計方法
